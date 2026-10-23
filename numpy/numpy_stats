@@ -1,0 +1,24 @@
+import numpy as np
+
+# 读 CSV，跳过表头（skip_header=1）
+data = np.genfromtxt('battery_demo.csv', delimiter=',', skip_header=1)
+print('数据形状(行,列):', data.shape)   # 应该是 (100, 5)
+
+# 按列拆出来（列顺序：time, voltage, current, temp, soc）
+time = data[:, 0]
+voltage = data[:, 1]
+current = data[:, 2]
+temp = data[:, 3]
+soc = data[:, 4]
+
+# 均值
+print('电压均值:', voltage.mean())     # 应该约等于 3.7（3.2~4.2 的中点）
+print('SOC 均值:', soc.mean())         # 应该约等于 60（100→20 的中点）
+
+# 方差 / 标准差
+print('电压标准差:', voltage.std())
+print('电流方差:', current.var())
+print('温度范围: 最低', temp.min(), '最高', temp.max())
+
+# 缺失值检测（你现在数据没缺，应该全 0）
+print('每列缺失值个数:', np.isnan(data).sum(axis=0))
