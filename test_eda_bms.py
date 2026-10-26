@@ -3,7 +3,6 @@
 EDA：探索真实 BMS 电池数据
 作用：用 pandas 把新疆项目的 BMS 数据「体检」一遍——
       看结构、算统计、找缺失、抓脏数据、画图。
-运行：在 VSCode 里点右上角 ▶ 运行本文件。
 """
 import pandas as pd
 import matplotlib.pyplot as plt
