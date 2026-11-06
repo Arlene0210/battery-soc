@@ -85,3 +85,45 @@ from sklearn.model_selection import cross_val_score
 scores = cross_val_score(model, X, y, cv=5, scoring='neg_mean_absolute_error')
 print("5 折各自 MAE:", np.round(-scores, 3))
 print("平均 MAE:", round(-scores.mean(), 3), "±", round(scores.std(), 3))
+
+
+
+# ============ 任务3：baseline 调优 ============
+print("\n" + "=" * 50)
+print("实验1：换特征组合")
+from sklearn.ensemble import RandomForestRegressor
+
+feature_sets = {
+    'A: 仅电压':           ['voltage'],
+    'B: 电压+电流+温度':     ['voltage','current','temper'],
+    'C: 加容量/能量':        ['voltage','current','temper','remain_capacity','soe'],
+}
+
+for name, cols in feature_sets.items():
+    X = df[cols].dropna()
+    y = df['soc'].loc[X.index]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    m = LinearRegression().fit(X_train, y_train)
+    mae = mean_absolute_error(y_test, m.predict(X_test))
+    print(f"{name:20s} → MAE = {mae:.3f}")
+
+print("\n" + "=" * 50)
+print("实验2：换随机森林（非线性）")
+X = df[['voltage','current','temper']]
+y = df['soc']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+rf = RandomForestRegressor(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+print("随机森林 MAE =", round(mean_absolute_error(y_test, rf.predict(X_test)), 3))
+
+
+# 特征重要性
+importances = rf.feature_importances_
+for name, imp in zip(['voltage','current','temper'], importances):
+    print(f"{name:10s} 重要性 = {imp:.3f}")
+
+for n in [10, 50, 100, 200]:
+    rf = RandomForestRegressor(n_estimators=n, random_state=42)
+    rf.fit(X_train, y_train)
+    mae = mean_absolute_error(y_test, rf.predict(X_test))
+    print(f"树数量={n:4d} → MAE = {mae:.3f}")
